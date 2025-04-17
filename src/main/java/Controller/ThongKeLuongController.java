@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @WebServlet(name = "ThongKeLuongController", urlPatterns = {"/listSalary","/findSalary"})
-public class ThongKeLuongController extends HttpServlet {
+public abstract class ThongKeLuongController extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private ThongKeLuongDAO thongKeLuongDAO = null;
     private QuanLyNhanVienDAO quanLyNhanVienDAO = new QuanLyNhanVienDAO();
@@ -191,4 +191,8 @@ public class ThongKeLuongController extends HttpServlet {
 
         return result;
     }
+
+    protected abstract ThongKeLuongDAO initThongKeLuongDAO();
+
+    protected abstract QuanLyNhanVienDAO initQuanLyNhanVienDAO();
 }
