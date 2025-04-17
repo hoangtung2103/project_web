@@ -25,7 +25,7 @@ public class CauTrucCongTyDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT distinct MaChiNhanh, TenChiNhanh FROM thongtinchitietchucvu;");) {
+                     "SELECT distinct MaChiNhanh, TenChiNhanh FROM chinhanh;");) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -51,13 +51,13 @@ public class CauTrucCongTyDAO {
             try (Connection connection = JDBCUtil.getConnection();
 
                  PreparedStatement preparedStatement = connection.prepareStatement(
-                         "SELECT distinct MaPhongBan, TenPB FROM thongtinchitietchucvu where MaChiNhanh = ? and MaPhongBan is not null;");) {
+                         "SELECT distinct MaPB, TenPB FROM thongtinphongban WHERE MaChiNhanh = ? and MaPB is not null;");) {
 
                 preparedStatement.setString(1,chinhanhs.get(i).getMaChiNhanh());
                 ResultSet rs = preparedStatement.executeQuery();
 
                 while (rs.next()) {
-                    String mapb = rs.getString("MaPhongBan");
+                    String mapb = rs.getString("MaPB");
                     String tenpb = rs.getString("TenPB");
 
                     phongbans.add(new CayPhongBan(mapb,tenpb));
@@ -82,12 +82,9 @@ public class CauTrucCongTyDAO {
             try (Connection connection = JDBCUtil.getConnection();
 
                  PreparedStatement preparedStatement = connection.prepareStatement(
-                         "SELECT distinct thongtinchitietchucvu.MaNhom, TenNhom \n" +
-                                 "FROM thongtinchitietchucvu inner join nhom on thongtinchitietchucvu.MaNhom = nhom.MaNhom \n" +
-                                 "where MaChiNhanh = ? and MaPhongBan = ? and thongtinchitietchucvu.MaNhom is not null;");) {
+                         "SELECT distinct MaNhom, TenNhom  FROM nhom  WHERE MaPB = ? and MaNhom is not null;");) {
 
-                preparedStatement.setString(1,chinhanhs.get(indexChiNhanh).getMaChiNhanh());
-                preparedStatement.setString(2,newStruture.get(i).getMaPhongBan());
+                preparedStatement.setString(1,newStruture.get(i).getMaPhongBan());
                 ResultSet rs = preparedStatement.executeQuery();
 
                 while (rs.next()) {

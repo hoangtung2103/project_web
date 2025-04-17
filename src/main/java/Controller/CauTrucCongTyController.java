@@ -10,70 +10,67 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "CauTrucCongTyController", urlPatterns = {"/xemcautruc"})
 public class CauTrucCongTyController extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private CauTrucCongTyDAO cauTrucCongTyDAO = null;
+    private CauTrucCongTyDAO cauTrucCongTyDAO;
 
-    public void init() {
-
+    // Constructor mặc định cho môi trường thực tế
+    public CauTrucCongTyController() {
+        this.cauTrucCongTyDAO = new CauTrucCongTyDAO();
     }
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    // Constructor cho kiểm thử
+    public CauTrucCongTyController(CauTrucCongTyDAO cauTrucCongTyDAO) {
+        this.cauTrucCongTyDAO = cauTrucCongTyDAO;
+    }
+
+    @Override
+    public void init() {
+        // Có thể thêm logic khởi tạo nếu cần
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try
-        {
-            LoadStructure(request,response);
-        }
-        catch (SQLException ex){
+        try {
+            LoadStructure(request, response);
+        } catch (SQLException ex) {
             HandleException.printSQLException(ex);
         }
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request,response);
+        doGet(request, response);
     }
 
     private void LoadStructure(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException, ServletException
-    {
+            throws SQLException, IOException, ServletException {
         HttpSession session = request.getSession();
-        TaiKhoan login = new TaiKhoan();
-        login=(TaiKhoan)session.getAttribute("user");
+        TaiKhoan login = (TaiKhoan) session.getAttribute("user");
 
-        if(login == null)
-        {
+        if (login == null) {
             response.sendRedirect("views/system/login.jsp");
-        }
-        else {
-            cauTrucCongTyDAO = new CauTrucCongTyDAO();
-            List <CayChiNhanh> structure = cauTrucCongTyDAO.LoadStructure();
+        } else {
+            List<CayChiNhanh> structure = cauTrucCongTyDAO.LoadStructure();
+            request.setAttribute("CauTrucCongTy", structure);
 
-            request.setAttribute("CauTrucCongTy",structure);
-
-            if(login.getQuyen().equals("admin"))
-            {
+            if (login.getQuyen().equals("admin")) {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("views/quanli/QuanLiCauTruc.jsp");
-                dispatcher.forward(request,response);
-            }
-            else if(login.getQuyen().equals("giamdoc"))
-            {
+                dispatcher.forward(request, response);
+            } else if (login.getQuyen().equals("giamdoc")) {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("views/giamdoc/XemCauTruc.jsp");
-                dispatcher.forward(request,response);
-            }
-            else if(login.getQuyen().equals("truongphong"))
-            {
+                dispatcher.forward(request, response);
+            } else if (login.getQuyen().equals("truongphong")) {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("views/truongphong/XemCauTruc.jsp");
-                dispatcher.forward(request,response);
-            }
-            else
-            {
+                dispatcher.forward(request, response);
+            } else {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("views/nhanvien/NhanVienCauTruc.jsp");
-                dispatcher.forward(request,response);
+                dispatcher.forward(request, response);
             }
         }
     }

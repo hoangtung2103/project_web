@@ -1,9 +1,6 @@
 package DAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,10 +11,10 @@ import JDBCUtils.JDBCUtil;
 
 public class QuanLyPhongBanDAO {
 
-  private static final String SELECT_PHONGBAN_ALL = "SELECT * FROM thongtintruongphong;";
-  private static final String SELECT_PHONGBAN_NHANH = "SELECT * FROM thongtintruongphong WHERE MaChiNhanh = ?;";
-  private static final String CALL_INSERT_PHONGBAN = "CALL themPhongBan(?, ?, ?, ?, ?, ?, ?, ?,?,?);";
-  private static final String CALL_UPDATE_PHONGBAN = "CALL suaPhongBan(?, ?, ?, ?, ?, ?, ?, ?,?);";
+  private static final String SELECT_PHONGBAN_ALL = "SELECT * FROM thongtinnguoidung tnd JOIN thongtincongtacnhanvien ct ON tnd.MaTaiKhoan = ct.MaTaiKhoan JOIN thongtinphongban tpb ON ct.MaPhongBan = tpb.MaPB JOIN chucvu cv ON ct.MaChucVu = cv.MaChucVu JOIN chinhanh cn ON ct.MaChiNhanh = cn.MaChiNhanh WHERE cv.TenChucVu = 'Trưởng phòng';";
+  private static final String SELECT_PHONGBAN_NHANH = "SELECT * FROM thongtinnguoidung tnd JOIN thongtincongtacnhanvien ct ON tnd.MaTaiKhoan = ct.MaTaiKhoan JOIN thongtinphongban tpb ON ct.MaPhongBan = tpb.MaPB JOIN chucvu cv ON ct.MaChucVu = cv.MaChucVu JOIN chinhanh cn ON ct.MaChiNhanh = cn.MaChiNhanh WHERE ct.MaChiNhanh = ? AND cv.TenChucVu = 'Trưởng phòng';";
+  private static final String CALL_INSERT_PHONGBAN = "CALL themPhongBan(?, ?, ?, ?, ?, ?);";
+  private static final String CALL_UPDATE_PHONGBAN = "{CALL suaPhongBan(?, ?, ?, ?, ?, ?)}";
   private static final String CALL_DELETE_PHONGBAN = "CALL xoaPhongBan(?);";
   public QuanLyPhongBanDAO() {
   }
@@ -45,7 +42,7 @@ public class QuanLyPhongBanDAO {
         String NgayTao = rs.getString("Ngaytao");
         String Sdt = rs.getString("SDT");
         String Machucvu = rs.getString("MaChucVu");
-        String MaTruongPhong = rs.getString("MaNhanVien");
+        String MaTruongPhong = rs.getString("MaTaiKhoan");
         String TenTruongPhong = rs.getString("HoTen");
 
         ThongTinTruongPhong thongTinTruongPhong = new ThongTinTruongPhong(MaChiNhanh, TenChiNhanh,
@@ -62,7 +59,7 @@ public class QuanLyPhongBanDAO {
   {
     List<ThongTinTruongPhong> result = new ArrayList<>();
     try (Connection connection = JDBCUtil.getConnection();
-         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM thongtintruongphong WHERE TenChiNhanh LIKE ? and  TenPB LIKE ?;");) {
+         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM thongtinphongban tpb JOIN chinhanh cn ON tpb.MaChiNhanh = cn.MaChiNhanh JOIN thongtincongtacnhanvien ttc ON tpb.MaPB = ttc.MaPhongBan JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu JOIN thongtinnguoidung tnd ON ttc.MaTaiKhoan = tnd.MaTaiKhoan WHERE cn.TenChiNhanh LIKE ? and  tpb.TenPB LIKE ? and cv.TenChucVu = 'Trưởng phòng';");) {
 
       preparedStatement.setString(1,tenChiNhanh);
       preparedStatement.setString(2,tenPhongBan);
@@ -76,7 +73,7 @@ public class QuanLyPhongBanDAO {
         String NgayTao = rs.getString("Ngaytao");
         String Sdt = rs.getString("SDT");
         String Machucvu = rs.getString("MaChucVu");
-        String MaTruongPhong = rs.getString("MaNhanVien");
+        String MaTruongPhong = rs.getString("MaTruongPhong");
         String TenTruongPhong = rs.getString("HoTen");
 
         ThongTinTruongPhong thongTinTruongPhong = new ThongTinTruongPhong(MaChiNhanh, TenChiNhanh,
@@ -94,17 +91,17 @@ public class QuanLyPhongBanDAO {
     try (Connection connection = JDBCUtil.getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
-            "SELECT * FROM project_web.thongtintruongphong");) {
+            "SELECT * FROM thongtinphongban tpb JOIN chinhanh cn ON tpb.MaChiNhanh = cn.MaChiNhanh JOIN thongtinnguoidung tnd ON tpb.MaTruongPhong = tnd.MaTaiKhoan JOIN thongtincongtacnhanvien ttc ON tnd.MaTaiKhoan = ttc.MaTaiKhoan JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu where cv.TenChucVu = 'Trưởng phòng';");) {
       ResultSet rs = preparedStatement.executeQuery();
       while (rs.next()) {
         String MaChiNhanh = rs.getString("MaChiNhanh");
         String TenChiNhanh = rs.getString("TenChiNhanh");
         String MaPhongBan = rs.getString("MaPB");
         String TenPhongBan = rs.getString("TenPB");
-        String NgayTao = rs.getString("Ngaytao");
+        String NgayTao = rs.getString("NgayTao");
         String Sdt = rs.getString("SDT");
         String Machucvu = rs.getString("MaChucVu");
-        String MaTruongPhong = rs.getString("MaNhanVien");
+        String MaTruongPhong = rs.getString("MaTaiKhoan");
         String TenTruongPhong = rs.getString("HoTen");
 
         ThongTinTruongPhong thongTinTruongPhong = new ThongTinTruongPhong(MaChiNhanh, TenChiNhanh,
@@ -122,7 +119,7 @@ public class QuanLyPhongBanDAO {
     try (Connection connection = JDBCUtil.getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
-            "select MaChiNhanh from congtac inner join chucvu on congtac.MaChucVu=chucvu.MaChucVu where MaNhanVien = ?");) {
+            "select MaChiNhanh from thongtincongtacnhanvien inner join chucvu on thongtincongtacnhanvien.MaChucVu=chucvu.MaChucVu where MaTaiKhoan = ?");) {
       preparedStatement.setString(1, maTaiKhoan);
 
       ResultSet rs = preparedStatement.executeQuery();
@@ -141,7 +138,7 @@ public class QuanLyPhongBanDAO {
     try (Connection connection = JDBCUtil.getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
-            "select MaPhongBan from congtac inner join chucvu on congtac.MaChucVu=chucvu.MaChucVu where MaNhanVien = ?");) {
+            "select MaPhongBan from thongtincongtacnhanvien inner join chucvu on thongtincongtacnhanvien.MaChucVu=chucvu.MaChucVu where MaTaiKhoan = ?");) {
       preparedStatement.setString(1, mataikhoan);
 
       ResultSet rs = preparedStatement.executeQuery();
@@ -160,7 +157,7 @@ public class QuanLyPhongBanDAO {
     try (Connection connection = JDBCUtil.getConnection();
 
         PreparedStatement preparedStatement = connection.prepareStatement(
-            "select TenChiNhanh from thongtincongtacnhanvien where MaChiNhanh = ?");) {
+            "SELECT DISTINCT cn.TenChiNhanh FROM thongtincongtacnhanvien ttc JOIN chinhanh cn ON ttc.MaChiNhanh = cn.MaChiNhanh WHERE cn.MaChiNhanh = ?;");) {
       preparedStatement.setString(1, maChiNhanh);
 
       ResultSet rs = preparedStatement.executeQuery();
@@ -198,16 +195,12 @@ public class QuanLyPhongBanDAO {
       String ngayBatDau) {
     try (Connection connection = JDBCUtil.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(CALL_INSERT_PHONGBAN);) {
-      preparedStatement.setString(1, maChiNhanh);
-      preparedStatement.setString(2, maPB);
-      preparedStatement.setString(3, tenPB);
+      preparedStatement.setString(1, maPB);
+      preparedStatement.setString(2, tenPB);
+      preparedStatement.setString(3, maChiNhanh);
       preparedStatement.setString(4, ngayTao);
       preparedStatement.setString(5, sdt);
-      preparedStatement.setString(6, maChucVu);
-      preparedStatement.setString(7, tenChucVu);
-      preparedStatement.setInt(8, luongCoBan);
-      preparedStatement.setString(9, maTruongPhong);
-      preparedStatement.setString(10, ngayBatDau);
+      preparedStatement.setString(6, maTruongPhong);
 
       preparedStatement.executeUpdate();
       return true;
@@ -217,24 +210,17 @@ public class QuanLyPhongBanDAO {
     }
   }
   public boolean SuaPhongBan(String maChiNhanh, String maPB, String tenPB, String ngayTao,
-      String sdt, String maChucVu, int luongCoBan, String maTruongPhong, String ngayBatDau) {
+                             String sdt, String maChucVu, int luongCoBan, String maTruongPhong, String ngayBatDau) {
     try (Connection connection = JDBCUtil.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(CALL_UPDATE_PHONGBAN);) {
-      preparedStatement.setString(1, maChiNhanh);
-      preparedStatement.setString(2, maPB);
-      preparedStatement.setString(3, tenPB);
-      preparedStatement.setString(4, ngayTao);
-      preparedStatement.setString(5, sdt);
-      preparedStatement.setString(6, maChucVu);
-      preparedStatement.setInt(7, luongCoBan);
-      preparedStatement.setString(8, maTruongPhong);
-      preparedStatement.setString(9, ngayBatDau);
+         CallableStatement callableStatement = connection.prepareCall(CALL_UPDATE_PHONGBAN)) {
+      callableStatement.setString(1, maPB);
+      callableStatement.setString(2, tenPB);
+      callableStatement.setString(3, maChiNhanh);
+      callableStatement.setString(4, ngayTao);
+      callableStatement.setString(5, sdt);
+      callableStatement.setString(6, maTruongPhong);
 
-      if (preparedStatement.executeUpdate() > 0) {
-        return true;
-      } else {
-        return false;
-      }
+      return callableStatement.executeUpdate() > 0;
     } catch (SQLException e) {
       HandleException.printSQLException(e);
       return false;
@@ -257,27 +243,4 @@ public class QuanLyPhongBanDAO {
     }
   }
 
-  public static void main(String[] args) {
-    QuanLyPhongBanDAO quanLyPhongBanDAO = new QuanLyPhongBanDAO();
-    String maChiNhanh = quanLyPhongBanDAO.LayMaChiNhanh("TK006");
-    String maPhongBan = quanLyPhongBanDAO.LayMaPhongBan("TK006");
-//    List<ThongTinTruongPhong> result = quanLyPhongBanDAO.selectAllPhongBan(maChiNhanh, maPhongBan,
-//        "giamdoc");
-//    for (ThongTinTruongPhong thongTinPhongBan : result) {
-//      System.out.println(thongTinPhongBan.getMaChiNhanh());
-//      System.out.println(thongTinPhongBan.getTenChiNhanh());
-//      System.out.println(thongTinPhongBan.getMaPB());
-//      System.out.println(thongTinPhongBan.getTenPB());
-//      System.out.println(thongTinPhongBan.getNgayTao());
-//      System.out.println(thongTinPhongBan.getSdt());
-//      System.out.println(thongTinPhongBan.getMaChucVu());
-//      System.out.println(thongTinPhongBan.getMaNhanVien());
-//      System.out.println(thongTinPhongBan.getHoTen());
-////    }
-//    boolean result = quanLyPhongBanDAO.AddPhongBan("CN101", "PB101", "Test",
-//        "2023-12-06", "9844037288", "CV101", "Phong Ki Thuat", 10000000, "NV101", "2023-12-06");
-//    System.out.println(result);
-    boolean result = quanLyPhongBanDAO.XoaPhongBan("PB101");
-    System.out.println(result);
-  }
 }

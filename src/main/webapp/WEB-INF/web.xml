@@ -18,12 +18,12 @@
 
     <context-param>
         <param-name>user</param-name>
-        <param-value>quangtruong050123@gmail.com</param-value>
+        <param-value>hoctap.ptit.2003@gmail.com</param-value>
     </context-param>
 
     <context-param>
         <param-name>pass</param-name>
-        <param-value>gemu pyui rikh bttr</param-value>
+        <param-value>Tung2003</param-value>
     </context-param>
 <!--    <error-page>-->
 <!--        <exception-type>java.lang.Exception</exception-type>-->

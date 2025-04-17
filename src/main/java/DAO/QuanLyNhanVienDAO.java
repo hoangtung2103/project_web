@@ -26,9 +26,9 @@ public class QuanLyNhanVienDAO {
             "  (MaQuyetDinh, LoaiQuyetDinh, Ngay, NoiDung,  MaNhanVien, MaNguoiQuyetDinh)" +
             " VALUES " + " (?, ?, ?, ?, ?, ?);";
 
-    private static final String SELECT_EMPLOYEE = "SELECT * from thongtincongtacnhanvien";
-    private static final String SELECT_EMPLOYEE_BRANCH = "SELECT * from thongtincongtacnhanvien where MaChiNhanh = ?";
-    private static final String SELECT_EMPLOYEE_DEPART = "SELECT * from thongtincongtacnhanvien where MaChiNhanh = ? and MaPhongBan = ?";
+    private static final String SELECT_EMPLOYEE = "SELECT * FROM thongtinnguoidung tnd JOIN thongtincongtacnhanvien ttc ON tnd.MaTaiKhoan = ttc.MaTaiKhoan JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu JOIN chinhanh cn ON ttc.MaChiNhanh = cn.MaChiNhanh JOIN thongtinphongban tpb ON ttc.MaPhongBan = tpb.MaPB;";
+    private static final String SELECT_EMPLOYEE_BRANCH = "SELECT * FROM thongtinnguoidung tnd JOIN thongtincongtacnhanvien ttc ON tnd.MaTaiKhoan = ttc.MaTaiKhoan JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu JOIN chinhanh cn ON ttc.MaChiNhanh = cn.MaChiNhanh JOIN thongtinphongban tpb ON ttc.MaPhongBan = tpb.MaPB where cn.MaChiNhanh = ?";
+    private static final String SELECT_EMPLOYEE_DEPART = "SELECT * FROM thongtinnguoidung tnd JOIN thongtincongtacnhanvien ttc ON tnd.MaTaiKhoan = ttc.MaTaiKhoan JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu JOIN chinhanh cn ON ttc.MaChiNhanh = cn.MaChiNhanh JOIN thongtinphongban tpb ON ttc.MaPhongBan = tpb.MaPB where cn.MaChiNhanh = ? and tpb.MaPB = ?";
 
     public QuanLyNhanVienDAO(){ }
 
@@ -63,7 +63,7 @@ public class QuanLyNhanVienDAO {
                 String machinhanh = rs.getString("MaChiNhanh");
                 String chinhanh = rs.getString("TenChiNhanh");
                 String maPB = rs.getString("MaPhongBan");
-                String phongban = rs.getString("TenPhongBan");
+                String phongban = rs.getString("TenPB");
 
                 info.add(new ThongTinCongTac(maNV,ten,gioitinh,ngaysinh,chucvu,machinhanh,chinhanh,maPB,phongban));
             }
@@ -79,7 +79,7 @@ public class QuanLyNhanVienDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "select MaChiNhanh from congtac inner join chucvu on congtac.MaChucVu=chucvu.MaChucVu where MaNhanVien = ?");) {
+                     "select MaChiNhanh from thongtincongtacnhanvien inner join chucvu on thongtincongtacnhanvien.MaChucVu=chucvu.MaChucVu where MaTaiKhoan = ?");) {
             preparedStatement.setString(1, mataikhoan);
 
             ResultSet rs = preparedStatement.executeQuery();
@@ -99,7 +99,7 @@ public class QuanLyNhanVienDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "select MaPhongBan from congtac inner join chucvu on congtac.MaChucVu=chucvu.MaChucVu where MaNhanVien = ?");) {
+                     "select MaPhongBan from thongtincongtacnhanvien inner join chucvu on thongtincongtacnhanvien.MaChucVu=chucvu.MaChucVu where MaTaiKhoan = ?");) {
             preparedStatement.setString(1, mataikhoan);
 
             ResultSet rs = preparedStatement.executeQuery();
@@ -119,7 +119,7 @@ public class QuanLyNhanVienDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "select TenChiNhanh from thongtincongtacnhanvien where MaChiNhanh = ?");) {
+                     "SELECT cn.TenChiNhanh FROM thongtincongtacnhanvien ttc JOIN chinhanh cn ON ttc.MaChiNhanh = cn.MaChiNhanh WHERE ttc.MaChiNhanh = ?;");) {
             preparedStatement.setString(1, maChiNhanh);
 
             ResultSet rs = preparedStatement.executeQuery();
@@ -158,12 +158,12 @@ public class QuanLyNhanVienDAO {
         List < PhongBan > info = new ArrayList < > ();
 
         try (Connection connection = JDBCUtil.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("select distinct TenPhongBan from thongtincongtacnhanvien where MaChiNhanh = ? and TenPhongBan is not null");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT DISTINCT tpb.TenPB FROM thongtincongtacnhanvien ttc JOIN thongtinphongban tpb ON ttc.MaPhongBan = tpb.MaPB WHERE ttc.MaChiNhanh = ? AND tpb.TenPB IS NOT NULL;");) {
             preparedStatement.setString(1, maChiNhanh);
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
-                String tenPB = rs.getString("TenPhongBan");
+                String tenPB = rs.getString("TenPB");
 
                 info.add(new PhongBan(tenPB));
             }
@@ -178,12 +178,12 @@ public class QuanLyNhanVienDAO {
         List < PhongBan > info = new ArrayList < > ();
 
         try (Connection connection = JDBCUtil.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("select distinct TenPhongBan from thongtincongtacnhanvien where TenPhongBan is not null");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT distinct tpb.TenPB FROM thongtincongtacnhanvien ttc JOIN thongtinphongban tpb ON ttc.MaPhongBan = tpb.MaPB where TenPB is not null;");) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
-                String tenPB = rs.getString("TenPhongBan");
+                String tenPB = rs.getString("TenPB");
 
                 info.add(new PhongBan(tenPB));
             }
@@ -198,7 +198,7 @@ public class QuanLyNhanVienDAO {
         List < ChucVu > info = new ArrayList < > ();
 
         try (Connection connection = JDBCUtil.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("select distinct TenChucVu from thongtincongtacnhanvien where MaChiNhanh = ? and TenChucVu is not null");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT DISTINCT cv.TenChucVu FROM thongtincongtacnhanvien ttc JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu WHERE ttc.MaChiNhanh = ? AND cv.TenChucVu IS NOT NULL;");) {
             preparedStatement.setString(1, maChiNhanh);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -218,7 +218,7 @@ public class QuanLyNhanVienDAO {
         List < ChucVu > info = new ArrayList < > ();
 
         try (Connection connection = JDBCUtil.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("select distinct TenChucVu from thongtincongtacnhanvien where TenChucVu is not null");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT distinct cv.TenChucVu FROM thongtincongtacnhanvien ttc JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu WHERE cv.TenChucVu IS NOT NULL;");) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -238,7 +238,7 @@ public class QuanLyNhanVienDAO {
         List < ChiNhanh > info = new ArrayList < > ();
 
         try (Connection connection = JDBCUtil.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT TenChiNhanh FROM project_web.chinhanh;");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT TenChiNhanh FROM chinhanh;");) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -258,7 +258,7 @@ public class QuanLyNhanVienDAO {
         List < ChucVu > info = new ArrayList < > ();
 
         try (Connection connection = JDBCUtil.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("select distinct TenChucVu from thongtincongtacnhanvien where MaChiNhanh = ? and MaPhongBan = ? and TenChucVu is not null");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT distinct cv.TenChucVu FROM thongtincongtacnhanvien ttc JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu where ttc.MaChiNhanh = ? and ttc.MaPhongBan = ? and cv.TenChucVu is not null");) {
             preparedStatement.setString(1, maChiNhanh);
             preparedStatement.setString(2, maPhongBan);
             ResultSet rs = preparedStatement.executeQuery();
@@ -279,7 +279,7 @@ public class QuanLyNhanVienDAO {
 
         try (Connection connection = JDBCUtil.getConnection();
 
-             PreparedStatement preparedStatement = connection.prepareStatement("select * from thongtincongtacnhanvien where TenChiNhanh LIKE ? and TenPhongBan LIKE ? and TenChucVu LIKE ?");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM thongtincongtacnhanvien ttc JOIN chinhanh cn ON ttc.MaChiNhanh = cn.MaChiNhanh JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu JOIN thongtinphongban tpb ON ttc.MaPhongBan = tpb.MaPB JOIN thongtinnguoidung tnd ON ttc.MaTaiKhoan = tnd.MaTaiKhoan WHERE cn.TenChiNhanh LIKE ? AND tpb.TenPB LIKE ? AND cv.TenChucVu LIKE ?;");) {
             preparedStatement.setString(1, tenCN);
             preparedStatement.setString(2, tenPB);
             preparedStatement.setString(3, tenCV);
@@ -294,8 +294,8 @@ public class QuanLyNhanVienDAO {
                 String chucvu = rs.getString("TenChucVu");
                 String machinhanh = rs.getString("MaChiNhanh");
                 String chinhanh = rs.getString("TenChiNhanh");
-                String maPB = rs.getString("MaPhongBan");
-                String phongban = rs.getString("TenPhongBan");
+                String maPB = rs.getString("MaPB");
+                String phongban = rs.getString("TenPB");
 
                 info.add(new ThongTinCongTac(maNV,ten,gioitinh,ngaysinh,chucvu,machinhanh,chinhanh,maPB,phongban));
             }
@@ -310,7 +310,7 @@ public class QuanLyNhanVienDAO {
         List <ThongTinNguoiDung> result = new ArrayList < > ();
         try (Connection connection = JDBCUtil.getConnection();
 
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM project_web.thongtinnguoidung");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM thongtinnguoidung");) {
 
             ResultSet rs = preparedStatement.executeQuery();
 

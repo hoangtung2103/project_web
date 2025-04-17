@@ -16,7 +16,7 @@ public class CapNhatThongTinDAO {
 
   private static final String SELECT_EMPLOYEE_INFO = "SELECT * FROM thongtinnguoidung WHERE MaTaiKhoan = ?;";
   private static final String UPDATE_EMPLOYEE_INFO = "UPDATE thongtinnguoidung SET HoTen = ?, GioiTinh = ?, CCCD = ?, NgayCap = ?, NoiCap = ?, NgaySinh = ?, SoDienThoai = ?, Email = ?, SoNha = ?, Xa = ?, Huyen = ?, Tinh = ? WHERE MaTaiKhoan = ?;";
-  private static final String SECLECT_EMPLOYEE_INFO_WORK = "SELECT * FROM thongtincongtacnhanvien WHERE MaTaiKhoan = ?;";
+  private static final String SECLECT_EMPLOYEE_INFO_WORK = "SELECT * FROM thongtincongtacnhanvien ttc JOIN thongtinnguoidung tnd ON ttc.MaTaiKhoan = tnd.MaTaiKhoan JOIN chucvu cv ON ttc.MaChucVu = cv.MaChucVu JOIN chinhanh cn ON ttc.MaChiNhanh = cn.MaChiNhanh JOIN thongtinphongban tpb ON ttc.MaPhongBan = tpb.MaPB WHERE ttc.MaTaiKhoan = ?;";
   private static final String SELECT_EMPLOYEE_QUYETDINH = "SELECT * FROM quyetdinh WHERE MaNhanVien = ?;";
 
   public CapNhatThongTinDAO() {
@@ -73,7 +73,7 @@ public class CapNhatThongTinDAO {
         String MaChiNhanh = rs.getString("MaChiNhanh");
         String ChiNhanh = rs.getString("TenChiNhanh");
         String MaPhongBan = rs.getString("MaPhongBan");
-        String PhongBan = rs.getString("TenPhongBan");
+        String PhongBan = rs.getString("TenPB");
         String NgayBatDau = rs.getString("NgayBD");
         ThongTinCongTac thongTinCongTac = new ThongTinCongTac(MaNhanVien, TenNhanVien, GioiTinh,
             NgaySinh, ChucVu, MaChiNhanh, ChiNhanh, MaPhongBan, PhongBan, NgayBatDau);

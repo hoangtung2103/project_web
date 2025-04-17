@@ -20,14 +20,14 @@ public class QuanLyChiNhanhDAO {
             " NgayTaoChiNhanh, SoDienThoai,MaTongGiamDoc) VALUES " + " (?, ?, ?, ?, ?,?, ?, ?,?);";
 
     private static final String UPDATE_CHINHANH = "UPDATE chinhanh set TenChiNhanh = ?, SoNha= ?, Xa =?, " +
-            "Huyen =?, Tinh = ?, NgayTaoChiNhanh=?, SoDienThoai=? where MaChiNhanh = ?;";
+            "Huyen =?, Tinh = ?, NgayTaoChiNhanh=?, SoDienThoai=?, MaTongGiamDoc=? where MaChiNhanh = ?;";
 
     public List <ThongTinNguoiDung> loadInfomation ()
     {
         List <ThongTinNguoiDung> result = new ArrayList < > ();
         try (Connection connection = JDBCUtil.getConnection();
 
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM project_web.thongtinnguoidung");) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM thongtinnguoidung");) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -163,7 +163,7 @@ public class QuanLyChiNhanhDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement("select * from chinhanh where  TenChiNhanh LIKE ?");) {
-            preparedStatement.setString(1, tenCN);
+            preparedStatement.setString(1, "%" + tenCN + "%");
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -212,8 +212,8 @@ public class QuanLyChiNhanhDAO {
             preparedStatement.setString(5,emp.getTinh());
             preparedStatement.setString(6,emp.getNgayTaoChiNhanh());
             preparedStatement.setString(7,emp.getSdt());
-            preparedStatement.setString(7,emp.getMaGiamDoc());
-            preparedStatement.setString(8,emp.getMaChiNhanh());
+            preparedStatement.setString(8,emp.getMaGiamDoc());
+            preparedStatement.setString(9,emp.getMaChiNhanh());
 
             preparedStatement.executeUpdate();
             return true;

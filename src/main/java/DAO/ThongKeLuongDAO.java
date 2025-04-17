@@ -21,7 +21,7 @@ public class ThongKeLuongDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT * FROM thongtinluong");) {
+                     "SELECT * FROM thongtinnguoidung tnd JOIN thongtinluong tl ON tnd.MaTaiKhoan = tl.MaNhanVien JOIN chucvu cv ON tl.MaChucVu = cv.MaChucVu;");) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -48,7 +48,7 @@ public class ThongKeLuongDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT * FROM thongtinluong where MaChiNhanh = ?");) {
+                     "SELECT * FROM thongtinnguoidung tnd JOIN thongtinluong tl ON tnd.MaTaiKhoan = tl.MaNhanVien JOIN chucvu cv ON tl.MaChucVu = cv.MaChucVu where tl.MaChiNhanh = ?");) {
             preparedStatement.setString(1,maChiNhanh);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -75,7 +75,7 @@ public class ThongKeLuongDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT * FROM thongtinluong where MaChiNhanh = ? and MaPhongBan = ?");) {
+                     "SELECT * FROM thongtinnguoidung tnd JOIN thongtinluong tl ON tnd.MaTaiKhoan = tl.MaNhanVien JOIN chucvu cv ON tl.MaChucVu = cv.MaChucVu where tl.MaChiNhanh = ? and tl.MaPhongBan = ?");) {
             preparedStatement.setString(1,maChiNhanh);
             preparedStatement.setString(2,maPhongBan);
             ResultSet rs = preparedStatement.executeQuery();
@@ -103,7 +103,7 @@ public class ThongKeLuongDAO {
         try (Connection connection = JDBCUtil.getConnection();
 
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT * FROM thongtinluong where TenChiNhanh LIKE ? and TenPB LIKE ? and TenChucVu LIKE ?");) {
+                     "SELECT * FROM thongtinluong tl JOIN chinhanh cn ON tl.MaChiNhanh = cn.MaChiNhanh JOIN chucvu cv ON tl.MaChucVu = cv.MaChucVu JOIN thongtinphongban tpb ON tl.MaPhongBan = tpb.MaPB JOIN thongtinnguoidung tnd ON tl.MaNhanVien = tnd.MaTaiKhoan where cn.TenChiNhanh LIKE ? and tpb.TenPB LIKE ? and cv.TenChucVu LIKE ?");) {
 
             preparedStatement.setString(1,tenCN);
             preparedStatement.setString(2,tenPB);
